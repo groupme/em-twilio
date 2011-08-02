@@ -1,0 +1,13 @@
+HTTP/1.1 500 Server Error
+Date: Tue, 02 Aug 2011 14:09:10 GMT
+Server: Apache
+X-Powered-By: PHP/5.1.6
+Content-Length: 244
+Etag: 
+Last-Modified: 
+X-Served-By: HOb62ff4e6204fd9e0debf46a69d5f3e1e
+Connection: close
+Content-Type: application/xml
+
+<?xml version="1.0"?>
+<TwilioResponse><RestException><Status>500</Status><Message>Internal Failure</Message><Code>12400</Code><MoreInfo>http://www.twilio.com/docs/errors/12400</MoreInfo></RestException></TwilioResponse>

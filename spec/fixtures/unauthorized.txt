@@ -1,0 +1,14 @@
+HTTP/1.1 401 Authorization Required
+Date: Mon, 01 Aug 2011 22:10:14 GMT
+Server: Apache
+X-Powered-By: PHP/5.1.6
+WWW-Authenticate: Basic realm="Twilio API"
+Content-Length: 216
+Etag: 
+Last-Modified: 
+X-Served-By: HO933628f76652d757e817e7e4bdba06f9
+Connection: close
+Content-Type: application/xml
+
+<?xml version="1.0"?>
+<TwilioResponse><RestException><Status>401</Status><Message>Authenticate</Message><Code>20003</Code><MoreInfo>http://www.twilio.com/docs/errors/20003</MoreInfo></RestException></TwilioResponse>

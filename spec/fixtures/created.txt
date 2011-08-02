@@ -1,0 +1,12 @@
+HTTP/1.1 201 Created
+Date: Tue, 02 Aug 2011 00:04:19 GMT
+Server: Apache
+X-Powered-By: PHP/5.1.6
+Etag: 
+X-Served-By: HO4e5d8bb7da42eaae47ed64453de5f878
+Content-Length: 591
+Connection: close
+Content-Type: application/xml
+
+<?xml version="1.0"?>
+<TwilioResponse><SMSMessage><Sid>SM805624cca3b410ad489c9e6dcf116b87</Sid><DateCreated>Tue, 02 Aug 2011 00:04:19 +0000</DateCreated><DateUpdated>Tue, 02 Aug 2011 00:04:19 +0000</DateUpdated><DateSent/><AccountSid>ACd304c2f3e389c475a30037453e8e48be</AccountSid><To>+17605807986</To><From>+15042645529</From><Body>hello</Body><Status>queued</Status><Direction>outbound-api</Direction><ApiVersion>2010-04-01</ApiVersion><Price/><Uri>/2010-04-01/Accounts/ACd304c2f3e389c475a30037453e8e48be/SMS/Messages/SM805624cca3b410ad489c9e6dcf116b87</Uri></SMSMessage></TwilioResponse>

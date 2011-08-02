@@ -1,0 +1,13 @@
+HTTP/1.1 400 Bad Request
+Date: Tue, 02 Aug 2011 14:09:10 GMT
+Server: Apache
+X-Powered-By: PHP/5.1.6
+Content-Length: 244
+Etag: 
+Last-Modified: 
+X-Served-By: HOb62ff4e6204fd9e0debf46a69d5f3e1e
+Connection: close
+Content-Type: application/xml
+
+<?xml version="1.0"?>
+<TwilioResponse><RestException><Status>400</Status><Message>+15555555555 is not a valid phone number</Message><Code>21401</Code><MoreInfo>http://www.twilio.com/docs/errors/21401</MoreInfo></RestException></TwilioResponse>
