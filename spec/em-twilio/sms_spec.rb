@@ -1,6 +1,41 @@
 require 'spec_helper'
 
 describe EventMachine::Twilio::SMS do
+  describe "#split" do
+    it "does not partition fewer than 160 characters" do
+      text = "1" * 159
+      EM::Twilio::SMS.split(text).should == [text]
+    end
+
+    it "paritions at the word boundary if longer than 160 characters" do
+      word_1 = "1" * 150
+      word_2 = "2" * 11
+      EM::Twilio::SMS.split(word_1 + " " + word_2).should == [word_1, word_2]
+    end
+
+    it "truncates word when it is longer than 160 characters" do
+      word = "1" * 161
+      expected = word[0..156] + "..."
+      expected.size.should == 160
+      EM::Twilio::SMS.split(word).should == [expected]
+    end
+
+    it "partitions an example long message" do
+      text = ("x" * 160) + " - leftover "
+      EM::Twilio::SMS.split(text).should == [
+        "x" * 160,
+        "- leftover"
+      ]
+    end
+
+    it "ignores blank partitions" do
+      text = ("x" * 160) + " \n\n\n"
+      EM::Twilio::SMS.split(text).should == [
+        "x" * 160
+      ]
+    end
+  end
+
   describe "#deliver" do
     before do
       EM::Twilio.authenticate("account_sid", "token")
@@ -33,8 +68,8 @@ describe EventMachine::Twilio::SMS do
       it "sends to Twilio" do
         sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
 
-        EM.run_block { @http = sms.deliver }
-        @http.response_header.status.should == 201
+        EM.run_block { @response = sms.deliver }
+        @response.first.response_header.status.should == 201
       end
     end
 

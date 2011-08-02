@@ -1,18 +1,52 @@
 module EventMachine
   module Twilio
     class SMS
+      LIMIT = 160
+
+      class << self
+        def split(text, chunk_size = LIMIT)
+          chunks = []
+          chunk = ""
+          text.dup.split(/ /).each do |word|
+            if word.size > chunk_size
+              chunk = truncate(word, chunk_size)
+            elsif chunk.size + word.size >= chunk_size
+              chunks << chunk.dup unless chunk.blank?
+              chunk = word
+            else
+              chunk += chunk.empty? ? word : " #{word}"
+            end
+          end
+          chunks << chunk
+          chunks.reject! { |c| c.strip.empty? }
+          chunks
+        end
+
+        private
+
+        def truncate(text, size)
+          text.dup[0..(size-4)] + "..."
+        end
+      end
+
       def initialize(to, from, body)
         @to, @from, @body = to, from, body
         @uuid = $uuid.generate
       end
 
       def deliver
+        self.class.split(@body).map do |body|
+          transmit(body)
+        end
+      end
+
+      def transmit(body)
         @start = Time.now.to_f
         @http = EventMachine::HttpRequest.new(sms_url).post(
           :query  => {
             "To"    => @to,
             "From"  => @from,
-            "Body"  => @body
+            "Body"  => body
           },
           :head => {
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
