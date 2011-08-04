@@ -16,6 +16,9 @@ module EventMachine
     class ServiceUnavailableError < TwilioError;end
     class MissingCredentialsError < TwilioError;end
 
+    class NetworkError < TwilioError;end
+    class TimeoutError < NetworkError;end
+
     class << self
       def send_sms(to, from, text)
         check_credentials

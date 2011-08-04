@@ -252,5 +252,30 @@ describe EventMachine::Twilio::SMS do
         }.should raise_error(EM::Twilio::ServiceUnavailableError)
       end
     end
+
+    describe "timeout and other network errors" do
+      before do
+        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        stub_request(:post, url).with(
+          :query => {
+            "To"    => "+12135550000",
+            "From"  => "+13105550000",
+            "Body"  => "Hello"
+          },
+          :headers => {
+            "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
+          }
+        ).to_timeout
+      end
+
+      it "logs error and raises" do
+        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+        sms.should_receive(:error).with("network error: WebMock timeout error")
+
+        lambda {
+          EM.run_block { sms.deliver }
+        }.should raise_error(EM::Twilio::NetworkError)
+      end
+    end
   end
 end

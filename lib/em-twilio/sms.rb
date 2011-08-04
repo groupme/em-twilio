@@ -2,6 +2,7 @@ module EventMachine
   module Twilio
     class SMS
       LIMIT = 160
+      TIMEOUT = 5000
 
       class << self
         def split(text, chunk_size = LIMIT)
@@ -52,8 +53,19 @@ module EventMachine
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         )
-        @http.callback  { callback }
-        @http.errback   { |e| error(e.inspect) }
+
+        @http.callback { callback }
+        @http.errback do
+          # em-http-request doesn't have a good way to check this
+          if (Time.now.to_f - @start >= TIMEOUT)
+            raise EM::Twilio::TimeoutError
+            error("timeout after #{TIMEOUT}ms")
+          else
+            error("network error: #{@http.error}")
+            raise EM::Twilio::NetworkError
+          end
+        end
+
         @http
       end
 
