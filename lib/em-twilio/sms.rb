@@ -18,14 +18,14 @@ module EventMachine
       def transmit(body)
         @start = Time.now.to_f
         @http = EventMachine::HttpRequest.new(sms_url).post(
-          :query  => {
+          :body  => {
             "To"    => @to,
             "From"  => @from,
             "Body"  => body
           },
           :head => {
-            "authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
-            "User-Agent"    => "em-twilio #{EM::Twilio::VERSION}"
+            "authorization"   => [EM::Twilio.account_sid, EM::Twilio.token],
+            "User-Agent"      => "em-twilio #{EM::Twilio::VERSION}"
           }
         )
 
