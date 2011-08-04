@@ -8,15 +8,15 @@ $uuid ||= UUID.new
 
 module EventMachine
   module Twilio
-    class TwilioError < StandardError;end
+    class Error < StandardError;end
 
-    class RequestError < TwilioError;end
-    class UnauthorizedError < TwilioError;end
-    class ServerError < TwilioError;end
-    class ServiceUnavailableError < TwilioError;end
-    class MissingCredentialsError < TwilioError;end
+    class RequestError < Error;end
+    class UnauthorizedError < Error;end
+    class ServerError < Error;end
+    class ServiceUnavailableError < Error;end
+    class MissingCredentialsError < Error;end
 
-    class NetworkError < TwilioError;end
+    class NetworkError < Error;end
     class TimeoutError < NetworkError;end
 
     class << self
