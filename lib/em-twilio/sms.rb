@@ -4,32 +4,6 @@ module EventMachine
       LIMIT = 160
       TIMEOUT = 5000
 
-      class << self
-        def split(text, chunk_size = LIMIT)
-          chunks = []
-          chunk = ""
-          text.dup.split(/ /).each do |word|
-            if word.size > chunk_size
-              chunk = truncate(word, chunk_size)
-            elsif chunk.size + word.size >= chunk_size
-              chunks << chunk.dup unless chunk.blank?
-              chunk = word
-            else
-              chunk += chunk.empty? ? word : " #{word}"
-            end
-          end
-          chunks << chunk
-          chunks.reject! { |c| c.strip.empty? }
-          chunks
-        end
-
-        private
-
-        def truncate(text, size)
-          text.dup[0..(size-4)] + "..."
-        end
-      end
-
       def initialize(to, from, body)
         @to, @from, @body = to, from, body
         @uuid = $uuid.generate
@@ -43,8 +17,6 @@ module EventMachine
 
       def transmit(body)
         @start = Time.now.to_f
-        info(sms_url)
-        info([@to, @from, body].inspect)
         @http = EventMachine::HttpRequest.new(sms_url).post(
           :query  => {
             "To"    => @to,
@@ -52,7 +24,8 @@ module EventMachine
             "Body"  => body
           },
           :head => {
-            "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
+            "authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
+            "User-Agent"    => "em-twilio #{EM::Twilio::VERSION}"
           }
         )
 
@@ -99,7 +72,7 @@ module EventMachine
       end
 
       def sms_url
-        @sms_url ||= "https://#{EM::Twilio.account_sid}:#{EM::Twilio.token}@api.twilio.com/2010-04-01/Accounts/#{EM::Twilio.account_sid}/SMS/Messages"
+        @sms_url ||= "https://api.twilio.com/2010-04-01/Accounts/#{EM::Twilio.account_sid}/SMS/Messages"
       end
 
       def info(message)
@@ -113,6 +86,32 @@ module EventMachine
       def log_message(message)
         elapsed = ((Time.now.to_f - @start) * 1000.0).round # in milliseconds
         "#{message} uuid=#{@uuid} to=#{@to} from=#{@from} time=#{elapsed}ms body='#{@body}'"
+      end
+
+      class << self
+        def split(text, chunk_size = LIMIT)
+          chunks = []
+          chunk = ""
+          text.dup.split(/ /).each do |word|
+            if word.size > chunk_size
+              chunk = truncate(word, chunk_size)
+            elsif chunk.size + word.size >= chunk_size
+              chunks << chunk.dup unless chunk.blank?
+              chunk = word
+            else
+              chunk += chunk.empty? ? word : " #{word}"
+            end
+          end
+          chunks << chunk
+          chunks.reject! { |c| c.strip.empty? }
+          chunks
+        end
+
+        private
+
+        def truncate(text, size)
+          text.dup[0..(size-4)] + "..."
+        end
       end
     end
   end

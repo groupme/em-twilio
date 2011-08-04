@@ -43,7 +43,7 @@ describe EventMachine::Twilio::SMS do
 
     describe "201 Created" do
       before do
-        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+12135550000",
@@ -51,6 +51,7 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_return(fixture("created.txt"))
@@ -75,7 +76,7 @@ describe EventMachine::Twilio::SMS do
 
     describe "400 Bad Request" do
       before do
-        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+15555555555",
@@ -83,6 +84,7 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_return(fixture("bad_request_invalid_phone.txt"))
@@ -112,7 +114,7 @@ describe EventMachine::Twilio::SMS do
       before do
         EM::Twilio.authenticate("bad_account_sid", "bad_token")
 
-        url = "https://bad_account_sid:bad_token@api.twilio.com/2010-04-01/Accounts/bad_account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/bad_account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+12135550000",
@@ -120,6 +122,7 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_return(fixture("unauthorized.txt"))
@@ -147,7 +150,7 @@ describe EventMachine::Twilio::SMS do
 
     describe "500 Server Error (with message)" do
       before do
-        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+12135550000",
@@ -155,6 +158,7 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_return(fixture("server_error_with_message.txt"))
@@ -174,7 +178,7 @@ describe EventMachine::Twilio::SMS do
 
     describe "500 Server Error (without message)" do
       before do
-        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+12135550000",
@@ -182,6 +186,7 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_return(fixture("server_error_without_message.txt"))
@@ -201,7 +206,7 @@ describe EventMachine::Twilio::SMS do
 
     describe "502 Bad Gateway" do
       before do
-        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+12135550000",
@@ -209,6 +214,7 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_return(fixture("bad_gateway.txt"))
@@ -228,7 +234,7 @@ describe EventMachine::Twilio::SMS do
 
     describe "503 ServiceUnavailable" do
       before do
-        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+12135550000",
@@ -236,7 +242,8 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
-            "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
+            "User-Agent"    => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_return(fixture("service_unavailable.txt"))
       end
@@ -255,7 +262,7 @@ describe EventMachine::Twilio::SMS do
 
     describe "timeout and other network errors" do
       before do
-        url = "https://account_sid:token@api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
+        url = "https://api.twilio.com/2010-04-01/Accounts/account_sid/SMS/Messages"
         stub_request(:post, url).with(
           :query => {
             "To"    => "+12135550000",
@@ -263,6 +270,7 @@ describe EventMachine::Twilio::SMS do
             "Body"  => "Hello"
           },
           :headers => {
+            "Authorization" => [EM::Twilio.account_sid, EM::Twilio.token],
             "User-Agent" => "em-twilio #{EM::Twilio::VERSION}"
           }
         ).to_timeout
