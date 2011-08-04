@@ -43,6 +43,8 @@ module EventMachine
 
       def transmit(body)
         @start = Time.now.to_f
+        info(sms_url)
+        info([@to, @from, body].inspect)
         @http = EventMachine::HttpRequest.new(sms_url).post(
           :query  => {
             "To"    => @to,
