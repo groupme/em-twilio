@@ -20,9 +20,9 @@ module EventMachine
     class TimeoutError < NetworkError;end
 
     class << self
-      def send_sms(to, from, text)
+      def send_sms(to, from, text, &block)
         check_credentials
-        SMS.new(to, from, text).deliver
+        SMS.new(to, from, text).deliver(&block)
       end
 
       def authenticate(account_sid, token)

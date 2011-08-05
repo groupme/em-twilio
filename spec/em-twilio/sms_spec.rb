@@ -58,19 +58,21 @@ describe EventMachine::Twilio::SMS do
       end
 
       it "logs SID info" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-        sms.should_receive(:info).with(
-          "sid=SM805624cca3b410ad489c9e6dcf116b87"
-        )
-
-        EM.run_block { sms.deliver }
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.should_receive(:info).with("sid=SM805624cca3b410ad489c9e6dcf116b87")
+          sms.deliver
+        end
       end
 
-      it "sends to Twilio" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-
-        EM.run_block { @response = sms.deliver }
-        @response.first.response_header.status.should == 201
+      it "calls block with SID when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            sid.should == "SM805624cca3b410ad489c9e6dcf116b87"
+            error.should be_nil
+          }
+        end
       end
     end
 
@@ -91,22 +93,21 @@ describe EventMachine::Twilio::SMS do
       end
 
       it "logs error message" do
-        sms = EM::Twilio::SMS.new("+15555555555", "+13105550000", "Hello")
-        sms.should_receive(:error).with(
-          "code=400 message='+15555555555 is not a valid phone number'"
-        )
-
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+15555555555", "+13105550000", "Hello")
+          sms.should_receive(:error).with("code=400 message='+15555555555 is not a valid phone number'")
+          sms.deliver
+        end
       end
 
-      it "raises RequestError" do
-        sms = EM::Twilio::SMS.new("+15555555555", "+13105550000", "Hello")
-
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error(EM::Twilio::RequestError)
+      it "calls block with error when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+15555555555", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            sid.should be_nil
+            error.should be_a_kind_of(EM::Twilio::RequestError)
+          }
+        end
       end
     end
 
@@ -129,22 +130,21 @@ describe EventMachine::Twilio::SMS do
       end
 
       it "logs error message" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-        sms.should_receive(:error).with(
-          "code=401 message='Authenticate'"
-        )
-
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.should_receive(:error).with("code=401 message='Authenticate'")
+          sms.deliver
+        end
       end
 
-      it "raises UnauthorizedError" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error(EM::Twilio::UnauthorizedError)
+      it "calls block with error when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            sid.should be_nil
+            error.should be_a_kind_of(EM::Twilio::UnauthorizedError)
+          }
+        end
       end
     end
 
@@ -165,14 +165,21 @@ describe EventMachine::Twilio::SMS do
       end
 
       it "logs error message and raises error" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-        sms.should_receive(:error).with(
-          "code=500 message='Internal Failure'"
-        )
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.should_receive(:error).with("code=500 message='Internal Failure'")
+          sms.deliver
+        end
+      end
 
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error(EM::Twilio::ServerError)
+      it "calls block with error when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            sid.should be_nil
+            error.should be_a_kind_of(EM::Twilio::ServerError)
+          }
+        end
       end
     end
 
@@ -193,14 +200,21 @@ describe EventMachine::Twilio::SMS do
       end
 
       it "logs response body and raises error" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-        sms.should_receive(:error).with(
-          "code=500 message='Internal Server Error'"
-        )
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.should_receive(:error).with("code=500 message='Internal Server Error'")
+          sms.deliver
+        end
+      end
 
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error(EM::Twilio::ServerError)
+      it "calls block with error when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            sid.should be_nil
+            error.should be_a_kind_of(EM::Twilio::ServerError)
+          }
+        end
       end
     end
 
@@ -220,15 +234,22 @@ describe EventMachine::Twilio::SMS do
         ).to_return(fixture("bad_gateway.txt"))
       end
 
-      it "logs error message and raises error" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-        sms.should_receive(:error).with(
-          "code=502 message='Bad Gateway'"
-        )
+      it "logs error message" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.should_receive(:error).with("code=502 message='Bad Gateway'")
+          sms.deliver
+        end
+      end
 
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error(EM::Twilio::ServiceUnavailableError)
+      it "calls block with error when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            sid.should be_nil
+            error.should be_a_kind_of(EM::Twilio::ServiceUnavailableError)
+          }
+        end
       end
     end
 
@@ -248,15 +269,21 @@ describe EventMachine::Twilio::SMS do
         ).to_return(fixture("service_unavailable.txt"))
       end
 
-      it "logs error message and raises error" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-        sms.should_receive(:error).with(
-          "code=503 message='Service Unavailable'"
-        )
+      it "logs error message" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.should_receive(:error).with("code=503 message='Service Unavailable'")
+          sms.deliver
+        end
+      end
 
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error(EM::Twilio::ServiceUnavailableError)
+      it "calls block with error when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            error.should be_a_kind_of(EM::Twilio::ServiceUnavailableError)
+          }
+        end
       end
     end
 
@@ -276,13 +303,22 @@ describe EventMachine::Twilio::SMS do
         ).to_timeout
       end
 
-      it "logs error and raises" do
-        sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
-        sms.should_receive(:error).with("network error: WebMock timeout error")
+      it "logs error" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.should_receive(:error).with("network error: WebMock timeout error")
+          sms.deliver
+        end
+      end
 
-        lambda {
-          EM.run_block { sms.deliver }
-        }.should raise_error(EM::Twilio::NetworkError)
+      it "calls block with error when present" do
+        EM.run_block do
+          sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
+          sms.deliver { |sid, error|
+            sid.should be_nil
+            error.should be_a_kind_of(EM::Twilio::NetworkError)
+          }
+        end
       end
     end
   end

@@ -31,23 +31,25 @@ it can.
 
 __If you do not want to split message, you must split it yourself!__
 
-### Exceptions
+### Callbacks
 
-The library raises an error on pretty much every non 201 response code.
+You can register callbacks to process the Twilio SID or exceptions:
 
-It's your responsibility to handle them.
-
-Exceptions __WILL NOT__ stop the reactor. This is up to you.
+    EM::Twilio.send_sms(to, from, body) do |sid, error|
+      # ...
+    end
 
 Here's a list of possible exceptions. See `em-twilio.rb` for more.
 
-    TwilioError < StandardError
-
-    RequestError            < TwilioError
-    UnauthorizedError       < TwilioError
-    ServerError             < TwilioError
-    ServiceUnavailableError < TwilioError
-    MissingCredentialsError < TwilioError
+    EM::Twilio::Error < StandardError
+    
+    EM::Twilio::RequestError            < EM::Twilio::Error
+    EM::Twilio::UnauthorizedError       < EM::Twilio::Error
+    EM::Twilio::ServerError             < EM::Twilio::Error
+    EM::Twilio::ServiceUnavailableError < EM::Twilio::Error
+    EM::Twilio::MissingCredentialsError < EM::Twilio::Error
+    EM::Twilio::NetworkError            < EM::Twilio::Error
+    EM::Twilio::TimeoutError            < EM::Twilio::NetworkError
     
 ## Legal
 
