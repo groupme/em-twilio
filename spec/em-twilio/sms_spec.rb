@@ -164,7 +164,7 @@ describe EventMachine::Twilio::SMS do
         ).to_return(fixture("server_error_with_message.txt"))
       end
 
-      it "logs error message and raises error" do
+      it "logs error message" do
         EM.run_block do
           sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
           sms.should_receive(:error).with("code=500 message='Internal Failure'")
@@ -199,7 +199,7 @@ describe EventMachine::Twilio::SMS do
         ).to_return(fixture("server_error_without_message.txt"))
       end
 
-      it "logs response body and raises error" do
+      it "logs response body" do
         EM.run_block do
           sms = EM::Twilio::SMS.new("+12135550000", "+13105550000", "Hello")
           sms.should_receive(:error).with("code=500 message='Internal Server Error'")
