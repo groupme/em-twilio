@@ -13,5 +13,6 @@ end
 RSpec.configure do |config|
   config.before(:each) do
     EM::Twilio.authenticate(nil, nil) # clear credentials
+    WebMock.disable_net_connect!
   end
 end
