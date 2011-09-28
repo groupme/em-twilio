@@ -35,8 +35,12 @@ __If you do not want to split message, you must split it yourself!__
 
 You can register callbacks to process the Twilio SID or exceptions:
 
-    EM::Twilio.send_sms(to, from, body) do |sid, error|
-      # ...
+    EM::Twilio.send_sms(to, from, body) do |response|
+      if response.success?
+        puts response.sid
+      else
+        puts "timeout!" if response.error.kind_of?(EM::Twilio::TimeoutError)
+      end
     end
 
 Here's a list of possible exceptions. See `em-twilio.rb` for more.
