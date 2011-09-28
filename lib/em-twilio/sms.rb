@@ -1,8 +1,10 @@
+require 'em-twilio/response'
+
 module EventMachine
   module Twilio
     class SMS
-      LIMIT = 160
-      TIMEOUT = 5000
+      LIMIT   = 160   # characters
+      TIMEOUT = 5000  # ms
 
       def initialize(to, from, body)
         @to, @from, @body = to, from, body
@@ -16,8 +18,8 @@ module EventMachine
       end
 
       def transmit(body, block)
-        @start = Time.now.to_f
-        @http = EventMachine::HttpRequest.new(sms_url).post(
+        start = Time.now.to_f
+        http = EventMachine::HttpRequest.new(sms_url).post(
           :body  => {
             "To"    => @to,
             "From"  => @from,
@@ -29,54 +31,24 @@ module EventMachine
           }
         )
 
-        @http.callback  { callback(block) }
-        @http.errback   { errback(block) }
-        @http
+        http.callback do
+          response = Response.new(http, start)
+          block.call(response)
+        end
+
+        http.errback do
+          response = Response.new(http, start)
+          response.error = if (response.duration >= TIMEOUT) # em-http-request has no good timeout check
+            EM::Twilio::TimeoutError.new("timeout after #{TIMEOUT}ms")
+          else
+            EM::Twilio::NetworkError.new("network error: #{http.error}")
+          end
+
+          block.call(response) if block
+        end
       end
 
       private
-
-      def callback(block)
-        code = @http.response_header.status.to_i
-
-        if code == 201
-          @http.response =~ /<Sid>(.*)<\/Sid>/
-          sid = $1
-          info("sid=#{sid}")
-          block.call(sid, nil) if block
-        else
-          @http.response =~ /<Message>(.*)<\/Message>/
-          message = $1
-          message = @http.response.strip unless message
-          error("code=#{code} message='#{message}'")
-
-          error = case code
-          when 400
-            EM::Twilio::RequestError.new(message)
-          when 401
-            EM::Twilio::UnauthorizedError.new(message)
-          when 500
-            EM::Twilio::ServerError.new(message)
-          when 502, 503
-            EM::Twilio::ServiceUnavailableError.new(message)
-          end
-          block.call(nil, error) if block
-        end
-      end
-
-      def errback(block)
-        if (Time.now.to_f - @start >= TIMEOUT)
-          # em-http-request has no good timeout check
-          message = "timeout after #{TIMEOUT}ms"
-          error = EM::Twilio::TimeoutError.new(message)
-        else
-          message = "network error: #{@http.error}"
-          error = EM::Twilio::NetworkError.new(message)
-        end
-
-        error(message)
-        block.call(nil, error) if block
-      end
 
       def sms_url
         @sms_url ||= "https://api.twilio.com/2010-04-01/Accounts/#{EM::Twilio.account_sid}/SMS/Messages"

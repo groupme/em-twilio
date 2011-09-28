@@ -35,9 +35,9 @@ describe EventMachine::Twilio do
         ).to_return(fixture("created.txt"))
 
         EM.run_block do
-          EM::Twilio.send_sms("+12135550000", "+13105550000", "Hello") do |sid, error|
-            sid.should == "SM805624cca3b410ad489c9e6dcf116b87"
-            error.should be_nil
+          EM::Twilio.send_sms("+12135550000", "+13105550000", "Hello") do |response|
+            response.sid.should == "SM805624cca3b410ad489c9e6dcf116b87"
+            response.error.should be_nil
           end
         end
     end
