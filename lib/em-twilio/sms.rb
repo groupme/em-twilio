@@ -30,7 +30,7 @@ module EventMachine
           response = Response.new(http, start)
           LogMessage.new(self, response).log
           response.error = if (response.duration >= EM::Twilio.timeout) # em-http-request has no good timeout check
-            EM::Twilio::TimeoutError.new("timeout after #{TIMEOUT}ms")
+            EM::Twilio::TimeoutError.new("timeout after #{EM::Twilio.timeout}ms")
           else
             EM::Twilio::NetworkError.new("network error: #{http.error}")
           end
