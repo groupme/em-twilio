@@ -4,6 +4,7 @@ require "logger"
 require "uuid"
 require "em-twilio/sms"
 require "em-twilio/splitter"
+require "em-twilio/version"
 
 $uuid ||= UUID.new
 
